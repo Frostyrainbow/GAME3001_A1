@@ -103,7 +103,7 @@ void Game::start()
 {
 	m_currentSceneState = NO_SCENE;
 
-	changeSceneState(PLAY_SCENE);
+	changeSceneState(START_SCENE);
 }
 
 void Game::setDeltaTime(float time)

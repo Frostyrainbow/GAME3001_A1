@@ -32,6 +32,9 @@ private:
 	Jet* m_pJet;
 	Target* m_pTarget;
 	Obstacle* m_pObstacle;
+	Label* m_pPlayLabel{};
+	Label* m_pInstructions1{};
+	Label* m_pInstructions2{};
 
 	// UI Items
 	

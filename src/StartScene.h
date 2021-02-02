@@ -22,7 +22,8 @@ public:
 	
 private:
 	Label* m_pStartLabel{};
-	Label* m_pInstructionsLabel{};
+	Label* m_pIntroLabel1{};
+	Label* m_pIntroLabel2{};
 
 	Ship* m_pShip{};
 

@@ -58,6 +58,7 @@ private:
 	void m_Seek();
 	void m_Flee();
 	void m_Arrival();
+	void m_CollisionAvoid();
 };
 
 #endif /* defined (__SPACE_SHIP__) */

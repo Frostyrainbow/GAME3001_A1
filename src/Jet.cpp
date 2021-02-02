@@ -28,14 +28,17 @@ void Jet::draw()
 {
 	TextureManager::Instance()->draw("jet", getTransform()->position.x, getTransform()->position.y, getRotation(), 255, true);
 	//Util::DrawLine(getTransform()->position, (getTransform()->position + m_orientation * 60.0f));
-	Util::DrawLine(m_leftWhisker.Start(), m_leftWhisker.End());
-	Util::DrawLine(m_rightWhisker.Start(), m_rightWhisker.End());
+	if (m_state == 4)
+	{
+		Util::DrawLine(m_leftWhisker.Start(), m_leftWhisker.End());
+		Util::DrawLine(m_rightWhisker.Start(), m_rightWhisker.End());
+	}
+	
 }
 
 void Jet::update()
 {
-	m_leftWhisker.SetLine(getTransform()->position, getTransform()->position + Util::getOrientation(m_rotationAngle - 30) * 100.0f);
-	m_rightWhisker.SetLine(getTransform()->position, getTransform()->position + Util::getOrientation(m_rotationAngle + 30) * 100.0f);
+	
 	/*setWhisker(getTransform()->position, getTransform()->position + Util::getOrientation(m_rotationAngle + 45) * 100.0f);*/
 	if (m_state == 1)
 	{
@@ -48,6 +51,12 @@ void Jet::update()
 	else if (m_state == 3)
 	{
 		m_Arrival();
+	}
+	else if (m_state == 4)
+	{
+		m_leftWhisker.SetLine(getTransform()->position, getTransform()->position + Util::getOrientation(m_rotationAngle - 30) * 100.0f);
+		m_rightWhisker.SetLine(getTransform()->position, getTransform()->position + Util::getOrientation(m_rotationAngle + 30) * 100.0f);
+		m_CollisionAvoid();
 	}
 	
 }
@@ -212,6 +221,11 @@ void Jet::m_Flee()
 }
 
 void Jet::m_Arrival()
+{
+	m_Seek();
+}
+
+void Jet::m_CollisionAvoid()
 {
 	m_Seek();
 }

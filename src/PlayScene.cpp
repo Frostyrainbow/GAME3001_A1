@@ -11,6 +11,8 @@
 PlayScene::PlayScene()
 {
 	PlayScene::start();
+	
+	
 }
 
 PlayScene::~PlayScene()
@@ -29,6 +31,7 @@ void PlayScene::draw()
 
 void PlayScene::update()
 {
+	auto deltaTime = TheGame::Instance()->getDeltaTime();
 	updateDisplayList();
 	if(m_pJet->getState() == 3)
 	{
@@ -54,7 +57,18 @@ void PlayScene::update()
 	
 	if (CollisionManager::lineRectCheck(m_pJet->m_leftWhisker.Start(), m_pJet->m_leftWhisker.End(), m_pObstacle->getTransform()->position - glm::vec2(100.0f, 50.0f), 200.0f, 100.0f))
 	{
+		
+		std::cout << "Collision Detected on the left whisker" << std::endl;
 		SoundManager::Instance().playSound("yay", 0);
+		m_pJet->setOrientation(m_pJet->getOrientation());
+		m_pJet->getRigidBody()->velocity -= m_pJet->getOrientation() * (deltaTime)+0.5f * m_pJet->getRigidBody()->acceleration * (deltaTime);
+	}
+	if (CollisionManager::lineRectCheck(m_pJet->m_rightWhisker.Start(), m_pJet->m_rightWhisker.End(), m_pObstacle->getTransform()->position - glm::vec2(100.0f, 50.0f), 200.0f, 100.0f))
+	{
+		std::cout << "Collision Detected on the right whisker" << std::endl;
+		SoundManager::Instance().playSound("yay", 0);
+		m_pJet->setOrientation(-m_pJet->getOrientation());
+		m_pJet->getRigidBody()->velocity += m_pJet->getOrientation() * (deltaTime)+0.5f * m_pJet->getRigidBody()->acceleration * (deltaTime);
 	}
 }
 
@@ -87,15 +101,34 @@ void PlayScene::handleEvents()
 
 void PlayScene::start()
 {
+	
 	// Set GUI Title
 	m_guiTitle = "Play Scene";
+	SoundManager::Instance().load("../Assets/audio/music.mp3", "music", SOUND_MUSIC);
+	SoundManager::Instance().setMusicVolume(5);
+	SoundManager::Instance().playMusic("music", -1, 0);
+
+	const SDL_Color blue = { 0, 0, 255, 255 };
+	m_pPlayLabel = new Label("Play Scene", "Consolas", 40, blue, glm::vec2(400.0f, 40.0f));
+	m_pPlayLabel->setParent(this);
+	addChild(m_pPlayLabel);
+
+	m_pInstructions1 = new Label("Press ~ to open the gui.", "Consolas", 30, blue, glm::vec2(400.0f, 80.0f));
+	m_pInstructions1->setParent(this);
+	addChild(m_pInstructions1);
+
+	m_pInstructions2 = new Label("Then press a button to select a state to see.", "Consolas", 30, blue, glm::vec2(400.0f, 110.0f));
+	m_pInstructions2->setParent(this);
+	addChild(m_pInstructions2);
 	
 	m_pTarget = new Target();
 	m_pTarget->getTransform()->position = glm::vec2(700.0f, 300.0f);
+	m_pTarget->setEnabled(false);
 	addChild(m_pTarget);
 
 	m_pObstacle = new Obstacle();
 	m_pObstacle->getTransform()->position = glm::vec2(500.0f, 300.0f);
+	m_pObstacle->setEnabled(false);
 	addChild(m_pObstacle);
 
 	m_pJet = new Jet();
@@ -114,7 +147,7 @@ void PlayScene::GUI_Function() const
 	// See examples by uncommenting the following - also look at imgui_demo.cpp in the IMGUI filter
 	//ImGui::ShowDemoWindow();
 	
-	ImGui::Begin("GAME3001 - Lab2", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
+	ImGui::Begin("GAME3001 - Assignment1", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_MenuBar);
 
 	static float speed = 10.0f;
 	if (ImGui::SliderFloat("MaxSpeed", &speed, 0.0f, 100.0f))
@@ -143,6 +176,7 @@ void PlayScene::GUI_Function() const
 	if(ImGui::Button("Seek"))
 	{
 		m_pJet->setEnabled(true);
+		m_pTarget->setEnabled(true);
 		m_pJet->setState(1);
 	}
 
@@ -152,8 +186,12 @@ void PlayScene::GUI_Function() const
 	{
 		m_pJet->getTransform()->position = glm::vec2(100.0f, 300.0f);
 		m_pJet->setEnabled(false);
+		m_pTarget->setEnabled(false);
+		m_pObstacle->setEnabled(false);
 		m_pJet->getRigidBody()->velocity = glm::vec2(0.0f, 0.0f);
 		m_pJet->setRotation(0.0f); //set angle to 0 degrees
+		m_pJet->setMaxSpeed(speed);
+		m_pJet->setAccelerationRate(acceleration_rate);
 		turn_rate = 5.0f;
 		acceleration_rate = 2.0f;
 		speed = 10.0f;
@@ -164,14 +202,26 @@ void PlayScene::GUI_Function() const
 	if (ImGui::Button("Flee"))
 	{
 		m_pJet->setEnabled(true);
+		m_pTarget->setEnabled(true);
 		m_pJet->setState(2);
+
 	}
 
 	ImGui::SameLine();
 	if (ImGui::Button("Arival"))
 	{
 		m_pJet->setEnabled(true);
+		m_pTarget->setEnabled(true);
 		m_pJet->setState(3);
+	}
+
+	ImGui::SameLine();
+	if (ImGui::Button("Collision Detect"))
+	{
+		m_pJet->setEnabled(true);
+		m_pTarget->setEnabled(true);
+		m_pObstacle->setEnabled(true);
+		m_pJet->setState(4);
 	}
 
 	ImGui::Separator();
